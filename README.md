@@ -1,21 +1,4 @@
-## 编译：  
-先运行 
-
-```cmd
-cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-```
-
-然后再运行
-```cmd
-cmake --build build
-
-```
-或者这个
-```cmd
-cmake --build build --config Release
-```
-
-使用
-```
-.\dx11_tex_dbg.exe -t YuanShen.exe -s 512
-```
+# 免责声明
+## 本项目仅供图形学学习、底层API拦截技术研究以及自研D3D11程序的调试使用。
+## 严禁用于任何带有反作弊系统或最终用户许可协议（EULA）禁止修改的商业游戏。
+## 因不当使用导致的封号、法律纠纷与本项目无关，由使用者自行承担全部风险与责任。
