@@ -1,0 +1,51 @@
+name: Build Windows exe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Patch CMake minimum version
+        shell: pwsh
+        run: |
+          $p = "CMakeLists.txt"
+          $txt = Get-Content $p -Raw
+          $txt = $txt -replace 'cmake_minimum_required\(VERSION 4\.3\.2\)', 'cmake_minimum_required(VERSION 3.28)'
+          Set-Content $p $txt -NoNewline
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Collect exe and dll
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifact | Out-Null
+          $wanted = @("dx11_tex_dbg.exe", "dx11_texture_debugger.dll")
+          foreach ($name in $wanted) {
+            $f = Get-ChildItem -Recurse -File -Filter $name | Select-Object -First 1
+            if ($null -eq $f) {
+              Write-Error "Cannot find output file: $name"
+              exit 1
+            }
+            Copy-Item $f.FullName -Destination artifact -Force
+          }
+          Get-ChildItem artifact
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dx11_tex_dbg_release
+          path: artifact
